@@ -1,0 +1,26 @@
+# Render manifest to deploy the full stack from this repository.
+# After pushing this repo to GitHub, connect the repository in Render and import this manifest.
+
+services:
+  - type: static
+    name: scholarship-frontend
+    repo: https://github.com/your/repo
+    branch: main
+    staticPublishPath: frontend
+    plan: free
+
+  - type: web
+    name: scholarship-flask
+    repo: https://github.com/your/repo
+    branch: main
+    env: docker
+    dockerfilePath: backend/flask/Dockerfile
+    plan: free
+
+  - type: web
+    name: scholarship-spring
+    repo: https://github.com/your/repo
+    branch: main
+    env: docker
+    dockerfilePath: backend/springboot/Dockerfile
+    plan: free
