@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  flask:
+    build: ./backend/flask
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+    restart: unless-stopped
+
+  spring:
+    build: ./backend/springboot
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8000:80"
+    depends_on:
+      - flask
+      - spring
+    restart: unless-stopped
