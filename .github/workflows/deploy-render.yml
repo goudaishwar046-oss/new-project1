@@ -1,0 +1,50 @@
+name: Deploy to Render
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  trigger-deploys:
+    name: Trigger Render Deploys
+    runs-on: ubuntu-latest
+    env:
+      RENDER_API_URL: https://api.render.com/v1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate secrets
+        run: |
+          if [ -z "${{ secrets.RENDER_API_KEY }}" ]; then echo "RENDER_API_KEY secret is missing"; exit 1; fi
+          if [ -z "${{ secrets.RENDER_SERVICE_ID_FRONTEND }}" ]; then echo "RENDER_SERVICE_ID_FRONTEND secret is missing"; exit 1; fi
+          if [ -z "${{ secrets.RENDER_SERVICE_ID_FLASK }}" ]; then echo "RENDER_SERVICE_ID_FLASK secret is missing"; exit 1; fi
+          if [ -z "${{ secrets.RENDER_SERVICE_ID_SPRING }}" ]; then echo "RENDER_SERVICE_ID_SPRING secret is missing"; exit 1; fi
+
+      - name: Trigger frontend deploy
+        run: |
+          echo "Triggering frontend deploy..."
+          curl -sSf -X POST "$RENDER_API_URL/services/${{ secrets.RENDER_SERVICE_ID_FRONTEND }}/deploys" \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H 'Content-Type: application/json' \
+            -d '{"clearCache":true}' | jq .
+
+      - name: Trigger Flask deploy
+        run: |
+          echo "Triggering Flask deploy..."
+          curl -sSf -X POST "$RENDER_API_URL/services/${{ secrets.RENDER_SERVICE_ID_FLASK }}/deploys" \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H 'Content-Type: application/json' \
+            -d '{"clearCache":true}' | jq .
+
+      - name: Trigger Spring deploy
+        run: |
+          echo "Triggering Spring Boot deploy..."
+          curl -sSf -X POST "$RENDER_API_URL/services/${{ secrets.RENDER_SERVICE_ID_SPRING }}/deploys" \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H 'Content-Type: application/json' \
+            -d '{"clearCache":true}' | jq .
+
+      - name: Done
+        run: echo "Render deploys triggered. Check Render dashboard for progress."
